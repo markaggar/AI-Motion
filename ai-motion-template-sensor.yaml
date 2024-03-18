@@ -32,10 +32,10 @@ template:
            off
          {% endif %}
        attributes:
-         motion: >
-           {{states("binary_sensor.family_room_motion")}}  # Motion Sensor
-         ai: >
-           {{states("binary_sensor.family_room_person")}}  # AI Sensor
+         motion: > # Motion Sensor
+           {{states("binary_sensor.family_room_motion")}}  
+         ai: > # AI Sensor
+           {{states("binary_sensor.family_room_person")}}  
          delta: >  # Maximum time between motion events before the sensor turns off
           {% if states("media_player.tv_family_room") != "off" and states("media_player.tv_family_room") != "unavailable" %}
              900
