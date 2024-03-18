@@ -17,22 +17,22 @@ There are three configuration options which you edit directly in the template se
 The first two are for the pair of sensors/binary_sensors (AI and motion) you want to use.
 
        attributes:
-         motion: >
-           {{states("binary_sensor.family_room_motion")}}  # Name of the motion sensor**
-         ai: >
-           {{states("binary_sensor.family_room_person")}}  # Name of the AI sensor (could be person, pet etc)**.
+         motion: > # Name of the motion sensor
+           {{states("binary_sensor.family_room_motion")}}  
+         ai: > # Name of the AI sensor (could be person, pet etc)
+           {{states("binary_sensor.family_room_person")}}  
 
 ### Delta time
 The third is the delta time between motion events.  This can be configurable in that it can have some logic to determine what the timeout should be in certain circumstances.
 
 The simple version is just to have a fixed value
 
-         delta: 300 **# Maximum time between motion events before the sensor turns off**
+         delta: 300 
 
 This is a more complex setting which sets the timeout based on whether the TV in the room is on or off.  If the TV is on, we typically aren't moving much 
          
-         delta: >
-          {% if states("media_player.family_room_tv") != "off" and states("media_player.family_room_tv") != "unavailable" %}
+         delta: > # Maximum time between motion events before the sensor turns off
+          {% if states("media_player.tv_family_room") != "off" and states("media_player.tv_family_room") != "unavailable" %}
              900
           {% else %}
              300
