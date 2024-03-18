@@ -52,6 +52,12 @@ Given Home Assistant's propensity to complain about template loops, the sensor i
               - binary_sensor.kitchen_person
               - media_player.tv_family_room
 
-Download the full template sensor here:
+## Binary motion sensors
+You can optionally create binary sensors as motion detectors that read the state of the AI motion sensor.  This is useful if, like me, you'd already create binary sensors and want to simply point the existing ones at the new code, without messing with your existing automations (this wasn't my first attempt at this :-))  The template sensor has code this
+
+## Download
+Download the full template sensor here: https://github.com/markaggar/AI-Motion/blob/main/ai-motion-template-sensor.yaml.  
+
+If you've never done this before, simply add this code to your configuration.yaml file using your favorite file editor.  There are 2 sensors and 2 binary sensors to show you how to add multiple sensors. 
 
 
