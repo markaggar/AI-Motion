@@ -1,6 +1,4 @@
 # Home Assistant AI Motion Template Sensor
-Home Assistant Template Sensor for Cameras with AI and Motion to prevent false positives and sustain the detection time if repeated motion is detected.
-
 I was tired of getting woken up in the middle of the night by Home Assistant when my Reolink cameras would detect a person outside due to false positives.  What I noticed is that these AI person detections would rarely if ever coincide with a motion event.
 Also, I wanted a way for my indoor cameras to be used as motion sensors for lighting control.  However, I didn't want the motion of my dog to set them off, so person detection was important. However, unless the person is fully visible and moving like a person (vs just sitting there), the person detection wouldn't trigger.  However, motion would frequently trigger. This meant that a person coming into the room would trigger the lights to be turned on, but it wouldn't be sustained, and I'd have to rely on motion events to keep the lights on.
 
