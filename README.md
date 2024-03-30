@@ -2,7 +2,7 @@
 Home Assistant Template Sensor for Cameras with AI and Motion to prevent false positives and sustain the detection time if repeated motion is detected.
 
 I was tired of getting woken up in the middle of the night by Home Assistant when my Reolink cameras would detect a person outside due to false positives.  What I noticed is that these AI person detections would rarely if ever coincide with a motion event.
-Also, I wanted a way for my indoor cameras to be used as motion sensors for lighting.  However, I didn't want the motion of my dog to set them off, so person detection was important. However, unless the person is fully visible, the person detection wouldn't trigger.  However, motion would frequently trigger. This meant that a person coming into the room would trigger the lights to be turned on, but it wouldn't be sustained, and I'd have to rely on motion events to keep the lights on.
+Also, I wanted a way for my indoor cameras to be used as motion sensors for lighting control.  However, I didn't want the motion of my dog to set them off, so person detection was important. However, unless the person is fully visible and moving like a person (vs just sitting there), the person detection wouldn't trigger.  However, motion would frequently trigger. This meant that a person coming into the room would trigger the lights to be turned on, but it wouldn't be sustained, and I'd have to rely on motion events to keep the lights on.
 
 As such I built this template sensor which is easy to adjust for your specific AI and motion sensors.
 
@@ -53,11 +53,25 @@ Given Home Assistant's propensity to complain about template loops, the sensor i
               - media_player.tv_family_room
 
 ## Binary motion sensors
-You can optionally create binary sensors as motion detectors that read the state of the AI motion sensor.  This is useful if, like me, you'd already create binary sensors and want to simply point the existing ones at the new code, without messing with your existing automations (this wasn't my first attempt at this :-))  The template sensor has code this
+You can optionally create binary sensors as motion detectors that read the state of the AI motion sensor.  This is useful if, like me, you'd already created binary sensors and want to simply point the existing ones at the new code, without messing with your existing automations (this wasn't my first attempt at this :-))  Here's example template binary sensors for the following:
+
+          - binary_sensor:
+            - name: Family Room Person Motion
+              unique_id: "Family Room Person Motion"
+              device_class: motion
+              state: >
+               {{is_state("sensor.family_room_ai_motion","on")}}
+            - name: Kitchen Person Motion
+              unique_id: "Kitchen Person Motion"
+              device_class: motion
+              state: >
+               {{is_state("sensor.kitchen_ai_motion","on")}}
 
 ## Download
 Download the full template sensor here: https://github.com/markaggar/AI-Motion/blob/main/ai-motion-template-sensor.yaml.  
 
-If you've never done this before, simply add this code to your configuration.yaml file using your favorite file editor.  There are 2 sensors and 2 binary sensors to show you how to add multiple sensors. 
+If you've never done this before, simply add this code to your configuration.yaml file using your favorite file editor.  There are 2 sensors and 2 binary sensors to show you how to add multiple sensors.   Then go to Developer tools and reload the template entities.  The next step will be to play around with the sensistivity of your Person and Motion sensors so they trigger frequently but you don't have both of them falsing triggering at the same time (and again, watch out for stormy nights)
+
+Enjoy!
 
 
