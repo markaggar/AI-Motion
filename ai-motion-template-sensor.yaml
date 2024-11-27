@@ -1,15 +1,3 @@
-template:
-  - binary_sensor:
-     - name: Family Room Person Motion
-       unique_id: "Family Room Person Motion"
-       device_class: motion
-       state: >
-        {{is_state("sensor.family_room_ai_motion","on")}}
-     - name: Kitchen Person Motion
-       unique_id: "Kitchen Person Motion"
-       device_class: motion
-       state: >
-        {{is_state("sensor.kitchen_ai_motion","on")}}
   - trigger:
     - platform: time_pattern
       seconds: "/15"
@@ -20,13 +8,11 @@ template:
         - binary_sensor.kitchen_motion
         - binary_sensor.kitchen_person
         - media_player.tv_family_room
-    sensor:  
+    sensor:
      - name: Family Room AI Motion
        unique_id: "Family Room AI Motion"
        state: >
-         {% if this.attributes.ai_motion is none %}
-           off
-         {% elif this.attributes.ai_motion == "on" %}
+         {% if this.attributes.ai_motion == "on" or (this.attributes.motion == "on" and this.attributes.ai == "on") %}
            on
          {% else %}
            off
@@ -40,216 +26,66 @@ template:
           {% if states("media_player.tv_family_room") != "off" and states("media_player.tv_family_room") != "unavailable" %}
              900
           {% else %}
-             300
+             30
           {% endif %}    
-         current_motion_off: >
-          {% set current_motion_off = this.attributes.current_motion_off | default("off") %}
-          {% set motion = this.attributes.motion | default("off") %}
-          {% if motion == "off" %}
-            {{now()}} 
-          {% else %}
-           {{current_motion_off}}
-          {% endif %} 
          current_motion_on: >
-          {% set current_motion_on = this.attributes.current_motion_on | default("off") %}
+          {% set current_motion_on = this.attributes.current_motion_on | default("2000-01-01 00:00:00.000000-00:00") %}
           {% set motion = this.attributes.motion | default("off") %}
-          {% if motion == "on" %}
+          {% set ai = this.attributes.ai | default("off") %}
+          {% if motion == "on" or ai == "on" %}
             {{now()}}
           {% else %}
-           {{current_motion_on}}
+            {{current_motion_on}}  
           {% endif %}
-         motion_beat: >
-           {% set motion_beat = this.attributes.motion_beat | default("0") %}
-           {% set motion = this.attributes.motion | default("off") %}
-           {% if motion == "on" and motion_beat | int == 0 %}
-             1
-           {% elif motion == "off" and motion_beat | int == 1 %}
-             2
-           {% elif motion == "on" and motion_beat | int == 2 %}
-             0
-           {% else %}
-             {{motion_beat}}
-           {% endif %}
-         current_motion_on_saved: >
-           {% set current_motion_on_saved = this.attributes.current_motion_on_saved | default("off") %}
-           {% set motion_beat = this.attributes.motion_beat | default("0") %}
-           {% set current_motion_on = this.attributes.current_motion_on | default("off") %}
-           {% if motion_beat | int == 2 %}
-             {{current_motion_on}}
-           {% else %}
-             {{current_motion_on_saved}}
-           {% endif %}
-         previous_motion_on: >
-           {% set previous_motion_on = this.attributes.previous_motion_on | default("off") %}
-           {% set current_motion_on_saved = this.attributes.current_motion_on_saved | default("off") %}
-           {% set motion_beat = this.attributes.motion_beat | default("0") %}
-           {% if motion_beat | int == 1 %}
-             {{current_motion_on_saved}}
-           {% else %}
-             {{previous_motion_on}}
-           {% endif %}      
          chained_motion_delta: >
-           {% set current_motion_on = this.attributes.current_motion_on | default("off") %}
-           {% set previous_motion_on = this.attributes.previous_motion_on | default("off") %}
-           {% if current_motion_on != "off" and previous_motion_on != "off" %}
-             {{as_timestamp(current_motion_on) | int(default=0) - as_timestamp(previous_motion_on) | default("0")}}
-           {% else %}
-              0
-           {% endif %}    
-         last_motion_delta: >
-           {% set current_motion_on = this.attributes.current_motion_on | default("off") %}
-           {% set current_motion_off = this.attributes.current_motion_off | default("off") %}
-           {% if current_motion_on != "off" and current_motion_off != "off" %}
-             {{as_timestamp(current_motion_off) | int(default=0) - as_timestamp(current_motion_on) | default("0")}}
-           {% else %}
-              0
-           {% endif %}     
-         current_person_on: >
-           {% set current_person_on = this.attributes.current_person_on | default("off") %}
-           {% set ai = this.attributes.ai | default("off") %}
-           {% if ai == "on" %}
-             {{now()}}
-           {% else %}
-             {{current_person_on}}
-           {% endif %}
+           {% set current_motion_on = this.attributes.current_motion_on | default("2000-01-01 00:00:00.000000-00:00") %}
+           {{as_timestamp(now()) | int(default=0) - as_timestamp(current_motion_on) | int(default=0) }}
          ai_motion: >
              {% set ai_motion = this.attributes.ai_motion | default("off") %}
              {% set motion = this.attributes.motion | default("off") %}
              {% set ai = this.attributes.ai | default("off") %}
-             {% set current_motion_on = this.attributes.current_motion_on | default("off") %}
-             {% set current_person_on = this.attributes.current_person_on | default("off") %}
              {% set chained_motion_delta = this.attributes.chained_motion_delta | default("0") %}
-             {% set last_motion_delta = this.attributes.last_motion_delta | default("0") %}
-             {% if current_motion_on == "off" or current_person_on == "off" %}
-                off
-             {%elif (
-                    (
-                     as_timestamp(current_motion_on) | int(default=100) - as_timestamp(current_person_on) | int(default=0) < 10 
-                       and as_timestamp(current_motion_on) | int(default=0) - as_timestamp(current_person_on) | int(default=100) >= 0
-                    ) 
-                   or 
-                    (
-                     as_timestamp(current_person_on) | int(default=100) - as_timestamp(current_motion_on) | int(default=0) < 10
-                      and as_timestamp(current_person_on) | int(default=0) - as_timestamp(current_motion_on) | int(default=100) >= 0
-                    )
-                   ) and (motion == "on" or ai == "on")  
-              %}
+             {% if motion == "on" and ai == "on" %}  
                 on
-             {% elif ai_motion == "on" and chained_motion_delta | int < this.attributes.delta | int and last_motion_delta | int < this.attributes.delta | int %}
+             {% elif ai_motion == "on" and chained_motion_delta | int < this.attributes.delta | int %}
                 on
              {% else %}
                 off
-             {% endif %}                
+             {% endif %}           
      - name: Kitchen AI Motion
        unique_id: "Kitchen AI Motion"
        state: >
-         {% if this.attributes.ai_motion is none %}
-           off
-         {% elif this.attributes.ai_motion == "on" %}
+         {% if this.attributes.ai_motion == "on" or (this.attributes.motion == "on" and this.attributes.ai == "on") %}
            on
          {% else %}
            off
-         {% endif %}   
+         {% endif %}
        attributes:
          motion: >
            {{states("binary_sensor.kitchen_motion")}}
          ai: >
            {{states("binary_sensor.kitchen_person")}}
          delta: 300  
-         current_motion_off: >
-          {% set current_motion_off = this.attributes.current_motion_off | default("off") %}
-          {% set motion = this.attributes.motion | default("off") %}
-          {% if motion == "off" %}
-            {{now()}} 
-          {% else %}
-           {{current_motion_off}}
-          {% endif %} 
          current_motion_on: >
-          {% set current_motion_on = this.attributes.current_motion_on | default("off") %}
+          {% set current_motion_on = this.attributes.current_motion_on | default("2000-01-01 00:00:00.000000-00:00") %}
           {% set motion = this.attributes.motion | default("off") %}
-          {% if motion == "on" %}
+          {% set ai = this.attributes.ai | default("off") %}
+          {% if motion == "on" or ai == "on" %}
             {{now()}}
           {% else %}
-           {{current_motion_on}}
+            {{current_motion_on}}  
           {% endif %}
-         motion_beat: >
-           {% set motion_beat = this.attributes.motion_beat | default("0") %}
-           {% set motion = this.attributes.motion | default("off") %}
-           {% if motion == "on" and motion_beat | int == 0 %}
-             1
-           {% elif motion == "off" and motion_beat | int == 1 %}
-             2
-           {% elif motion == "on" and motion_beat | int == 2 %}
-             0
-           {% else %}
-             {{motion_beat}}
-           {% endif %}
-         current_motion_on_saved: >
-           {% set current_motion_on_saved = this.attributes.current_motion_on_saved | default("off") %}
-           {% set motion_beat = this.attributes.motion_beat | default("0") %}
-           {% set current_motion_on = this.attributes.current_motion_on | default("off") %}
-           {% if motion_beat | int == 2 %}
-             {{current_motion_on}}
-           {% else %}
-             {{current_motion_on_saved}}
-           {% endif %}
-         previous_motion_on: >
-           {% set previous_motion_on = this.attributes.previous_motion_on | default("off") %}
-           {% set current_motion_on_saved = this.attributes.current_motion_on_saved | default("off") %}
-           {% set motion_beat = this.attributes.motion_beat | default("0") %}
-           {% if motion_beat | int == 1 %}
-             {{current_motion_on_saved}}
-           {% else %}
-             {{previous_motion_on}}
-           {% endif %}      
          chained_motion_delta: >
-           {% set current_motion_on = this.attributes.current_motion_on | default("off") %}
-           {% set previous_motion_on = this.attributes.previous_motion_on | default("off") %}
-           {% if current_motion_on != "off" and previous_motion_on != "off" %}
-             {{as_timestamp(current_motion_on) | int(default=0) - as_timestamp(previous_motion_on) | default("0")}}
-           {% else %}
-              0
-           {% endif %}    
-         last_motion_delta: >
-           {% set current_motion_on = this.attributes.current_motion_on | default("off") %}
-           {% set current_motion_off = this.attributes.current_motion_off | default("off") %}
-           {% if current_motion_on != "off" and current_motion_off != "off" %}
-             {{as_timestamp(current_motion_off) | int(default=0) - as_timestamp(current_motion_on) | default("0")}}
-           {% else %}
-              0
-           {% endif %}     
-         current_person_on: >
-           {% set current_person_on = this.attributes.current_person_on | default("off") %}
-           {% set ai = this.attributes.ai | default("off") %}
-           {% if ai == "on" %}
-             {{now()}}
-           {% else %}
-             {{current_person_on}}
-           {% endif %}
+           {% set current_motion_on = this.attributes.current_motion_on | default("2000-01-01 00:00:00.000000-00:00") %}
+           {{as_timestamp(now()) | int(default=0) - as_timestamp(current_motion_on) | int(default=0) }}
          ai_motion: >
              {% set ai_motion = this.attributes.ai_motion | default("off") %}
              {% set motion = this.attributes.motion | default("off") %}
              {% set ai = this.attributes.ai | default("off") %}
-             {% set current_motion_on = this.attributes.current_motion_on | default("off") %}
-             {% set current_person_on = this.attributes.current_person_on | default("off") %}
              {% set chained_motion_delta = this.attributes.chained_motion_delta | default("0") %}
-             {% set last_motion_delta = this.attributes.last_motion_delta | default("0") %}
-             {% if current_motion_on == "off" or current_person_on == "off" %}
-                off
-             {%elif (
-                    (
-                     as_timestamp(current_motion_on) | int(default=100) - as_timestamp(current_person_on) | int(default=0) < 10 
-                       and as_timestamp(current_motion_on) | int(default=0) - as_timestamp(current_person_on) | int(default=100) >= 0
-                    ) 
-                   or 
-                    (
-                     as_timestamp(current_person_on) | int(default=100) - as_timestamp(current_motion_on) | int(default=0) < 10
-                      and as_timestamp(current_person_on) | int(default=0) - as_timestamp(current_motion_on) | int(default=100) >= 0
-                    )
-                   ) and (motion == "on" or ai == "on")  
-              %}
+             {% if motion == "on" and ai == "on" %}  
                 on
-             {% elif ai_motion == "on" and chained_motion_delta | int < this.attributes.delta | int and last_motion_delta | int < this.attributes.delta | int %}
+             {% elif ai_motion == "on" and chained_motion_delta | int < this.attributes.delta | int %}
                 on
              {% else %}
                 off
