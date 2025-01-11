@@ -29,11 +29,11 @@ The first two are for the pair of sensors/binary_sensors (AI and motion) you wan
            {{states("binary_sensor.family_room_person")}}  
 
 ### Delta time
-The third is the delta time between motion events.  This can be configurable in that it can have some logic to determine what the timeout should be in certain circumstances.
+The third is the delta time in seconds between motion events.  This can be configurable in that it can have some logic to determine what the timeout should be in certain circumstances.
 
 The simple version is just to have a fixed value
 
-         delta: 300 
+         delta: 300 # seconds
 
 This is a more complex setting which sets the timeout based on whether the TV in the room is on or off.  If the TV is on, we typically aren't moving much 
          
