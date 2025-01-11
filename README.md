@@ -76,7 +76,7 @@ You can optionally create binary sensors as motion detectors that read the state
 ## Download
 Download the full template sensor here: https://github.com/markaggar/AI-Motion/blob/main/ai-motion-template-sensor.yaml.  
 
-If you've never done this before, simply add this code to your configuration.yaml file using your favorite file editor.  There are 2 sensors and 2 binary sensors to show you how to add multiple sensors.   Then go to Developer tools/YAML and reload the template entities.  The next step will be to play around with the sensistivity of your Person and Motion sensors so they trigger frequently but you don't have both of them falsly triggering at the same time (and again, watch out for stormy nights)
+If you've never done this before, simply add this code to your configuration.yaml file using your favorite file editor.  There are 2 sensors and 2 binary sensors to show you how to add multiple sensors.   Then go to Developer tools/YAML and reload the template entities.  The next step will be to play around with the sensitivity of your Person and Motion sensors so they trigger frequently but you don't have both of them falsly triggering at the same time (and again, watch out for stormy nights!).
 
 Enjoy!
 
