@@ -37,7 +37,7 @@ The simple version is just to have a fixed value
 
 This is a more complex setting which sets the timeout based on whether the TV in the room is on or off.  If the TV is on, we typically aren't moving much 
          
-         delta: > # Maximum time between motion events before the sensor turns off
+         delta: > # Maximum time in seconds between motion events before the sensor turns off
           {% if states("media_player.tv_family_room") != "off" and states("media_player.tv_family_room") != "unavailable" %}
              900
           {% else %}
